@@ -51,7 +51,7 @@ jobs:
       - name: Get version
         id: version
         run: |
-          VERSION=$(cat tuya-camera-stream/config.yaml | grep '^version:' | awk '{print $2}' | tr -d '"')
+          VERSION=$(cat tuya-camera-stream/config.yaml | grep '^version:' | awk '{print $2}' | tr -d '"\r')
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Build and push
