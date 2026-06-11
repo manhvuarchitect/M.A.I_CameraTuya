@@ -23,9 +23,6 @@ RUN apk add --no-cache \
 COPY --from=builder /build/tuya-ipc-terminal /usr/bin/tuya-ipc-terminal
 RUN chmod +x /usr/bin/tuya-ipc-terminal
 
-# Copy s6-overlay service scripts
-COPY rootfs /
-
 # Run script
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
