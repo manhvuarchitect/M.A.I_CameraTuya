@@ -49,39 +49,61 @@ if [ ! -f "${SESSION_FILE}" ]; then
 
     if [ "${AUTH_METHOD}" = "qr" ]; then
         bashio::log.info "QR code sẽ xuất hiện bên dưới."
-        bashio::log.info "Bạn có 90 giây để scan bằng Tuya Smart / Smart Life app."
+        bashio::log.info "Bạn có 120 giây để scan bằng Tuya Smart / Smart Life app."
+        bashio::log.info "Sau khi scan xong, addon tự động tiếp tục."
         bashio::log.info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-        # Gửi Enter tự động sau 90 giây để tiếp tục sau khi scan
-        (sleep 90 && echo "") | ${BINARY} auth add "${REGION}" "${EMAIL}" --qr 2>&1 | \
-            while IFS= read -r line; do
-                bashio::log.info "${line}"
-            done
+        # Dùng expect để tương tác đúng với binary
+        expect -c "
+            log_user 1
+            set timeout 120
+            spawn ${BINARY} auth add ${REGION} ${EMAIL} --qr
+            expect {
+                \"Press Enter after scanning\" {
+                    # Đã scan xong, gửi Enter
+                    send \"\r\"
+                    exp_continue
+                }
+                \"successfully\" {
+                    # Login OK
+                }
+                \"Error\" {
+                    exit 1
+                }
+                timeout {
+                    send \"\r\"
+                }
+                eof {}
+            }
+        " 2>&1 | while IFS= read -r line; do
+            bashio::log.info "${line}"
+        done
 
         # Kiểm tra session đã tạo chưa
         if [ ! -f "${SESSION_FILE}" ]; then
-            bashio::log.error "Đăng nhập thất bại! Có thể do:"
-            bashio::log.error "  1. Chưa scan QR trong 90 giây"
-            bashio::log.error "  2. Region sai (VN thử 'eu-central' hoặc 'china')"
-            bashio::log.error "  3. Tài khoản không hợp lệ"
-            bashio::log.error "Restart addon để thử lại."
+            bashio::log.error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            bashio::log.error "Đăng nhập thất bại! Nguyên nhân có thể:"
+            bashio::log.error "  1. Chưa scan QR trong 120 giây"
+            bashio::log.error "  2. Region sai — VN thử 'china' thay vì 'eu-central'"
+            bashio::log.error "  3. Email/tài khoản không đúng"
+            bashio::log.error "→ Đổi region trong Configuration rồi Restart addon."
+            bashio::log.error "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             exit 1
         fi
 
         bashio::log.info "✓ Đăng nhập thành công!"
 
     else
-        # Password method — cần tương tác qua terminal
+        # Password method
         bashio::log.info "Auth method = password"
-        bashio::log.info "Vào HA Terminal (SSH addon) và chạy lệnh sau:"
+        bashio::log.info "Vào HA Terminal (SSH addon) và chạy:"
         bashio::log.info ""
         bashio::log.info "  docker exec -it \$(docker ps --format '{{.Names}}' | grep mai_tuya) bash"
         bashio::log.info "  HOME=/data/tuya-ipc /usr/bin/tuya-ipc-terminal auth add --password ${REGION} ${EMAIL}"
         bashio::log.info ""
-        bashio::log.info "Sau khi đăng nhập xong → Restart addon này."
+        bashio::log.info "Sau khi đăng nhập xong → Restart addon."
         bashio::log.info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-        # Chờ session file xuất hiện
         WAIT=0
         while [ ! -f "${SESSION_FILE}" ]; do
             sleep 10
@@ -112,7 +134,7 @@ bashio::log.info "Thêm camera vào Home Assistant:"
 bashio::log.info "  camera:"
 bashio::log.info "    - platform: generic"
 bashio::log.info "      stream_source: rtsp://homeassistant.local:${RTSP_PORT}/[TenCamera]"
-bashio::log.info "      name: \"Camera Tuya\""
+bashio::log.info "      name: My Camera"
 bashio::log.info ""
 bashio::log.info "Hoặc trong go2rtc.yaml:"
 bashio::log.info "  streams:"
