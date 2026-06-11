@@ -1,0 +1,53 @@
+name: "M.A.I Tuya Camera Stream"
+version: "1.0.0"
+slug: "mai_tuya_camera"
+description: "Stream Tuya Smart Cameras as local RTSP via tuya-ipc-terminal (WebRTC-to-RTSP bridge)"
+url: "https://github.com/manhvuarchitect/M.A.I-addons/tree/main/tuya-camera-stream"
+arch:
+  - aarch64
+  - amd64
+  - armv7
+startup: application
+boot: auto
+init: false
+host_network: false
+ports:
+  8554/tcp: 8554
+ports_description:
+  8554/tcp: "RTSP stream server"
+options:
+  region: "eu-central"
+  email: ""
+  auth_method: "qr"
+  rtsp_port: 8554
+  log_level: "info"
+schema:
+  region:
+    type: list
+    values:
+      - eu-central
+      - eu-east
+      - us-west
+      - us-east
+      - china
+      - india
+  email: str
+  auth_method:
+    type: list
+    values:
+      - qr
+      - password
+  rtsp_port: int
+  log_level:
+    type: list
+    values:
+      - debug
+      - info
+      - warning
+      - error
+map:
+  - type: data
+    read_only: false
+panel_icon: mdi:cctv
+panel_title: "Tuya Camera"
+image: "ghcr.io/manhvuarchitect/mai-tuya-camera-{arch}"

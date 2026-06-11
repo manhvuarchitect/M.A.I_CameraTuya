@@ -1,0 +1,21 @@
+configuration:
+  region:
+    name: Tuya Region
+    description: >-
+      Region của tài khoản Tuya Smart / Smart Life.
+      VN thường dùng 'eu-central' hoặc 'china'.
+      Thử 'eu-central' trước.
+  email:
+    name: Email tài khoản
+    description: Email đăng nhập Tuya Smart hoặc Smart Life app
+  auth_method:
+    name: Phương thức đăng nhập
+    description: >-
+      'qr' = scan QR bằng app (xem Log để lấy QR).
+      'password' = đăng nhập bằng mật khẩu (cần dùng Terminal).
+  rtsp_port:
+    name: RTSP Port
+    description: Port của RTSP server. Mặc định 8554.
+  log_level:
+    name: Log Level
+    description: Mức độ log. Dùng 'debug' khi troubleshoot.
