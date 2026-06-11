@@ -11,19 +11,17 @@ RUN git clone https://github.com/seydx/tuya-ipc-terminal.git . \
 # ─── Runtime image ────────────────────────────────────────────────────────────
 FROM $BUILD_FROM
 
-# Install runtime deps
 RUN apk add --no-cache \
     bash \
     tzdata \
     ca-certificates \
     ffmpeg \
-    jq
+    jq \
+    expect
 
-# Copy binary from builder
 COPY --from=builder /build/tuya-ipc-terminal /usr/bin/tuya-ipc-terminal
 RUN chmod +x /usr/bin/tuya-ipc-terminal
 
-# Run script
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 
