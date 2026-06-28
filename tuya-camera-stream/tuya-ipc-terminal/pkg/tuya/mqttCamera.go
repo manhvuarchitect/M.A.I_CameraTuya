@@ -70,7 +70,7 @@ func NewMqttCameraClient(mqttClient *MQTTClient, device *Device, webrtcConfig *W
 		auth:         webrtcConfig.Auth,
 		motoId:       webrtcConfig.MotoId,
 		deviceId:     device.DeviceId,
-		SessionId:    utils.RandString(32, 16),
+		SessionId:    utils.RandString(6, 62),
 		publishTopic: fmt.Sprintf("/av/moto/%s/u/%s", webrtcConfig.MotoId, device.DeviceId),
 	}
 }
@@ -128,7 +128,7 @@ func (c *MQTTCameraClient) SendDisconnect() error {
 
 func (c *MQTTCameraClient) onMqttAnswer(msg *MqttMessage) {
 	var answerFrame AnswerFrame
-	if err := json.Unmarshal([]byte(msg.Data.Message), &answerFrame); err != nil {
+	if err := json.Unmarshal(msg.Data.Message, &answerFrame); err != nil {
 		c.onError(err)
 		return
 	}
@@ -138,7 +138,7 @@ func (c *MQTTCameraClient) onMqttAnswer(msg *MqttMessage) {
 
 func (c *MQTTCameraClient) onMqttCandidate(msg *MqttMessage) {
 	var candidateFrame CandidateFrame
-	if err := json.Unmarshal([]byte(msg.Data.Message), &candidateFrame); err != nil {
+	if err := json.Unmarshal(msg.Data.Message, &candidateFrame); err != nil {
 		c.onError(err)
 		return
 	}
@@ -200,10 +200,8 @@ func (c *MQTTCameraClient) sendMqttMessage(messageType string, protocol int, tra
 				SessionID:     c.SessionId,
 				MotoID:        c.motoId,
 				TransactionID: transactionID,
-				Seq:           0,
-				Rtx:           0,
 			},
-			Message: string(jsonMessage),
+			Message: jsonMessage,
 		},
 	}
 

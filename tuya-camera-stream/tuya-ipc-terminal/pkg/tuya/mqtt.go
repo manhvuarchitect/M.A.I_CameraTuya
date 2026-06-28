@@ -28,13 +28,11 @@ type MqttFrameHeader struct {
 	SessionID     string `json:"sessionid"`
 	MotoID        string `json:"moto_id"`
 	TransactionID string `json:"tid"`
-	Seq           int    `json:"seq"`
-	Rtx           int    `json:"rtx"`
 }
 
 type MqttFrame struct {
 	Header  MqttFrameHeader `json:"header"`
-	Message string          `json:"msg"`
+	Message json.RawMessage `json:"msg"`
 }
 
 type MqttMessage struct {
