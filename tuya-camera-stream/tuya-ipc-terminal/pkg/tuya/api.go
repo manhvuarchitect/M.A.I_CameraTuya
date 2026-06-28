@@ -17,6 +17,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/manhvuarchitect/M.A.I_CameraTuya/tuya-ipc-terminal/pkg/core"
 )
 
 type QRCodeResponse struct {
@@ -617,6 +619,8 @@ func GetWebRTCConfig(client *http.Client, serverHost string, deviceId string) (*
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("HTTP error: %d - %s", resp.StatusCode, string(body))
 	}
+
+	core.Logger.Info().Msgf("WebRTC Config Response RAW for %s: %s", deviceId, string(body))
 
 	var webRTCConfigResponse WebRTCConfigResponse
 	if err := json.Unmarshal(body, &webRTCConfigResponse); err != nil {
