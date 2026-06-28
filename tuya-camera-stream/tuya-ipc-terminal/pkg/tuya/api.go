@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/manhvuarchitect/M.A.I_CameraTuya/tuya-ipc-terminal/pkg/core"
+	"tuya-ipc-terminal/pkg/core"
 )
 
 type QRCodeResponse struct {
