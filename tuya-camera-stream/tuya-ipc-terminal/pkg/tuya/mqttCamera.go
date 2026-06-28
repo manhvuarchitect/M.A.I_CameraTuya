@@ -128,7 +128,7 @@ func (c *MQTTCameraClient) SendDisconnect() error {
 
 func (c *MQTTCameraClient) onMqttAnswer(msg *MqttMessage) {
 	var answerFrame AnswerFrame
-	if err := json.Unmarshal(msg.Data.Message, &answerFrame); err != nil {
+	if err := json.Unmarshal([]byte(msg.Data.Message), &answerFrame); err != nil {
 		c.onError(err)
 		return
 	}
@@ -138,7 +138,7 @@ func (c *MQTTCameraClient) onMqttAnswer(msg *MqttMessage) {
 
 func (c *MQTTCameraClient) onMqttCandidate(msg *MqttMessage) {
 	var candidateFrame CandidateFrame
-	if err := json.Unmarshal(msg.Data.Message, &candidateFrame); err != nil {
+	if err := json.Unmarshal([]byte(msg.Data.Message), &candidateFrame); err != nil {
 		c.onError(err)
 		return
 	}
