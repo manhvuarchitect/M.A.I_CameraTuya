@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 	"tuya-ipc-terminal/pkg/core"
@@ -76,11 +77,9 @@ func NewMqttCameraClient(mqttClient *MQTTClient, device *Device, webrtcConfig *W
 }
 
 func (c *MQTTCameraClient) SendOffer(sdp string, streamResolution string, streamType int, isHEVC bool) error {
-	if streamResolution == "hd" {
-		streamType = 0
-	} else {
-		streamType = 1
-	}
+	// horter sdp, remove a=extmap... line, device ONLY allow 8KB json payload
+	re := regexp.MustCompile(`\r\na=extmap[^\r\n]*`)
+	sdp = re.ReplaceAllString(sdp, "")
 
 	return c.sendMqttMessage("offer", 302, "", OfferFrame{
 		Mode:              "webrtc",
