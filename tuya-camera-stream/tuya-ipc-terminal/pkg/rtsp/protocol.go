@@ -287,11 +287,16 @@ func (s *RTSPServer) handleOptions(client *RTSPClient, request *RTSPRequest) {
 
 func (s *RTSPServer) handleDescribe(client *RTSPClient, request *RTSPRequest) {
 	// Generate SDP for the camera stream
-	sdp := s.generateSDP(client.stream.camera, request.URL)
+	sdp := s.generateSDP(client.stream.camera, request.URL, request)
+
+	contentBase := request.URL
+	if !strings.HasSuffix(contentBase, "/") {
+		contentBase += "/"
+	}
 
 	headers := map[string]string{
 		"CSeq":          strconv.Itoa(request.CSeq),
-		"Content-Base":  request.URL,
+		"Content-Base":  contentBase,
 		"Cache-Control": "no-cache",
 	}
 
@@ -513,7 +518,7 @@ func (s *RTSPServer) handleUnsupportedMethod(client *RTSPClient, request *RTSPRe
 	sendRTSPResponse(client.conn, 501, "Not Implemented", headers, "")
 }
 
-func (s *RTSPServer) generateSDP(camera *storage.CameraInfo, baseURL string) string {
+func (s *RTSPServer) generateSDP(camera *storage.CameraInfo, baseURL string, request *RTSPRequest) string {
 	sdp := "v=0\r\n"
 	sdp += fmt.Sprintf("o=- %d %d IN IP4 0.0.0.0\r\n", time.Now().Unix(), time.Now().Unix())
 	sdp += "s=Tuya Camera Stream\r\n"
@@ -566,7 +571,7 @@ func (s *RTSPServer) generateSDP(camera *storage.CameraInfo, baseURL string) str
 		videoSdp += "a=fmtp:96 packetization-mode=1;profile-level-id=42001e\r\n"
 	}
 
-	videoSdp += fmt.Sprintf("a=control:%s/video\r\n", baseURL)
+	videoSdp += "a=control:video\r\n"
 	videoSdp += "a=recvonly\r\n"
 
 	// Audio media description based on skill
@@ -594,14 +599,35 @@ func (s *RTSPServer) generateSDP(camera *storage.CameraInfo, baseURL string) str
 		audioSdp += "a=rtpmap:0 PCMU/8000\r\n"
 	}
 
-	backchannelAudio := audioSdp
-	backchannelAudio += fmt.Sprintf("a=control:%s/backchannel\r\n", baseURL)
-	backchannelAudio += "a=sendonly\r\n"
-
-	audioSdp += fmt.Sprintf("a=control:%s/audio\r\n", baseURL)
+	audioSdp += "a=control:audio\r\n"
 	audioSdp += "a=recvonly\r\n"
 
-	finalSdp := sdp + videoSdp + audioSdp + backchannelAudio
+	finalSdp := sdp + videoSdp + audioSdp
+
+	// Only include backchannel if the client explicitly requested it
+	if request != nil && strings.Contains(request.Headers["Require"], "www.onvif.org/ver20/backchannel") {
+		backchannelAudio := ""
+		if skill != nil && len(skill.Audios) > 0 {
+			audioInfo := skill.Audios[0]
+			switch audioInfo.CodecType {
+			case 101, 105:
+				backchannelAudio += "m=audio 0 RTP/AVP 0\r\n"
+				backchannelAudio += "a=rtpmap:0 PCMU/8000\r\n"
+			case 106:
+				backchannelAudio += "m=audio 0 RTP/AVP 8\r\n"
+				backchannelAudio += "a=rtpmap:8 PCMA/8000\r\n"
+			default:
+				backchannelAudio += "m=audio 0 RTP/AVP 0\r\n"
+				backchannelAudio += "a=rtpmap:0 PCMU/8000\r\n"
+			}
+		} else {
+			backchannelAudio += "m=audio 0 RTP/AVP 0\r\n"
+			backchannelAudio += "a=rtpmap:0 PCMU/8000\r\n"
+		}
+		backchannelAudio += "a=control:backchannel\r\n"
+		backchannelAudio += "a=sendonly\r\n"
+		finalSdp += backchannelAudio
+	}
 
 	return finalSdp
 }
