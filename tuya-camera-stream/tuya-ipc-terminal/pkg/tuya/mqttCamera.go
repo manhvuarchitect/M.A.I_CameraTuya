@@ -77,13 +77,10 @@ func NewMqttCameraClient(mqttClient *MQTTClient, device *Device, webrtcConfig *W
 }
 
 func (c *MQTTCameraClient) SendOffer(sdp string, streamResolution string, streamType int, isHEVC bool) error {
-	if isHEVC {
-		// On HEVC we use streamType 0 for main stream (hd) and 1 for sub stream (sd)
-		if streamResolution == "hd" {
-			streamType = 0
-		} else {
-			streamType = 1
-		}
+	if streamResolution == "hd" {
+		streamType = 0
+	} else {
+		streamType = 1
 	}
 
 	return c.sendMqttMessage("offer", 302, "", OfferFrame{

@@ -92,8 +92,8 @@ func NewServerAPI(network, address string, filters *Filters) (*webrtc.API, error
 	} else {
 		// default network types - all
 		networkTypes = []webrtc.NetworkType{
-			webrtc.NetworkTypeUDP4, webrtc.NetworkTypeUDP6,
-			webrtc.NetworkTypeTCP4, webrtc.NetworkTypeTCP6,
+			webrtc.NetworkTypeUDP4,
+			webrtc.NetworkTypeTCP4,
 		}
 	}
 	s.SetNetworkTypes(networkTypes)
