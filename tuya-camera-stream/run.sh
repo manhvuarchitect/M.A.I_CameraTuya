@@ -13,6 +13,7 @@ DATA_DIR="/data/tuya-ipc"
 # Override HOME để data persist vào /data qua restart
 export HOME="${DATA_DIR}"
 mkdir -p "${DATA_DIR}/.tuya-data"
+cd "${DATA_DIR}"
 
 bashio::log.info "════════════════════════════════════════"
 bashio::log.info "  M.A.I Tuya Camera Stream Addon"
