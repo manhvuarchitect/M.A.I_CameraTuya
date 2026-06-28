@@ -34,7 +34,7 @@ type MqttFrameHeader struct {
 
 type MqttFrame struct {
 	Header  MqttFrameHeader `json:"header"`
-	Message json.RawMessage `json:"msg"`
+	Message string          `json:"msg"`
 }
 
 type MqttMessage struct {

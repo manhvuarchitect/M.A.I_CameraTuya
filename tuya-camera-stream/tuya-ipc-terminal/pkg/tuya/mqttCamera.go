@@ -191,7 +191,7 @@ func (c *MQTTCameraClient) sendMqttMessage(messageType string, protocol int, tra
 	msg := &MqttMessage{
 		Protocol: protocol,
 		Pv:       "2.2",
-		T:        time.Now().UnixMilli(),
+		T:        time.Now().Unix(),
 		Data: MqttFrame{
 			Header: MqttFrameHeader{
 				Type:          messageType,
@@ -203,7 +203,7 @@ func (c *MQTTCameraClient) sendMqttMessage(messageType string, protocol int, tra
 				Seq:           0,
 				Rtx:           0,
 			},
-			Message: jsonMessage,
+			Message: string(jsonMessage),
 		},
 	}
 

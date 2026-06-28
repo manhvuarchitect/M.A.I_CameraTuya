@@ -1,12 +1,14 @@
 name: "M.A.I Tuya Camera Stream"
-version: "1.0.8"
+version: "1.0.9"
 slug: "mai_tuya_camera"
-description: "Stream Tuya Smart Cameras as local RTSP via tuya-ipc-terminal"
+description: "Stream Tuya Smart Cameras as local RTSP via tuya-ipc-terminal."
 url: "https://github.com/manhvuarchitect/M.A.I_CameraTuya"
 arch:
   - aarch64
   - amd64
   - armv7
+  - armhf
+  - i386
 startup: application
 boot: auto
 init: false
