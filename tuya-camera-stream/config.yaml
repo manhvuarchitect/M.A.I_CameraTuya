@@ -1,5 +1,5 @@
 name: "M.A.I Tuya Camera Stream"
-version: "1.0.6"
+version: "1.0.7"
 slug: "mai_tuya_camera"
 description: "Stream Tuya Smart Cameras as local RTSP via tuya-ipc-terminal"
 url: "https://github.com/manhvuarchitect/M.A.I_CameraTuya"
@@ -16,7 +16,7 @@ ports:
 ports_description:
   8554/tcp: "RTSP stream server"
 options:
-  region: "eu-central"
+  region: "us-west"
   email: ""
   auth_method: "qr"
   rtsp_port: 8554

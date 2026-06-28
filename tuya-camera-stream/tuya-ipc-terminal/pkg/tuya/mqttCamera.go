@@ -31,13 +31,13 @@ type Replay struct {
 }
 
 type OfferFrame struct {
-	Mode              string      `json:"mode"`
-	Sdp               string      `json:"sdp"`
-	StreamType        int         `json:"stream_type"`
-	Auth              string      `json:"auth"`
-	Token             []ICEServer `json:"token"`
-	Replay            Replay      `json:"replay"`
-	DatachannelEnable bool        `json:"datachannel_enable"`
+	Mode              string `json:"mode"`
+	Sdp               string `json:"sdp"`
+	StreamType        int    `json:"stream_type"`
+	Auth              string `json:"auth"`
+	Token             string `json:"token"`
+	Replay            Replay `json:"replay"`
+	DatachannelEnable bool   `json:"datachannel_enable"`
 }
 
 type AnswerFrame struct {
@@ -83,12 +83,14 @@ func (c *MQTTCameraClient) SendOffer(sdp string, streamResolution string, stream
 		streamType = 1
 	}
 
+	tokenBytes, _ := json.Marshal(c.webrtcConfig.P2PConfig.Ices)
+
 	return c.sendMqttMessage("offer", 302, "", OfferFrame{
 		Mode:              "webrtc",
 		Sdp:               sdp,
 		StreamType:        streamType,
 		Auth:              c.auth,
-		Token:             c.webrtcConfig.P2PConfig.Ices,
+		Token:             string(tokenBytes),
 		Replay:            Replay{IsReplay: 0},
 		DatachannelEnable: isHEVC,
 	})
