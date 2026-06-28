@@ -64,10 +64,6 @@ type DisconnectFrame struct {
 }
 
 func NewMqttCameraClient(mqttClient *MQTTClient, device *Device, webrtcConfig *WebRTCConfig) *MQTTCameraClient {
-	topic := mqttClient.publishTopicBase
-	topic = strings.Replace(topic, "moto_id", webrtcConfig.MotoId, 1)
-	topic = strings.Replace(topic, "{device_id}", device.DeviceId, 1)
-
 	return &MQTTCameraClient{
 		mqttClient:   mqttClient,
 		webrtcConfig: webrtcConfig,
@@ -75,7 +71,7 @@ func NewMqttCameraClient(mqttClient *MQTTClient, device *Device, webrtcConfig *W
 		motoId:       webrtcConfig.MotoId,
 		deviceId:     device.DeviceId,
 		SessionId:    utils.RandString(6, 62),
-		publishTopic: topic,
+		publishTopic: fmt.Sprintf("/av/moto/%s/u/%s", webrtcConfig.MotoId, device.DeviceId),
 	}
 }
 

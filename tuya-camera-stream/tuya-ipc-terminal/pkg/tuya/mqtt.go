@@ -13,10 +13,9 @@ import (
 
 type MQTTClient struct {
 	mqtt           mqtt.Client
-	uid              string
-	subscribeTopic   string
-	publishTopicBase string
-	cameras          map[string]*MQTTCameraClient // sessionId -> camera
+	uid            string
+	subscribeTopic string
+	cameras        map[string]*MQTTCameraClient // sessionId -> camera
 	closed         bool
 	Connected      utils.Waiter
 }
@@ -45,10 +44,9 @@ type MqttMessage struct {
 
 func NewMqttClient(clientId, mobileMqttsUrl string, mqttConfig *MQTConfig) (*MQTTClient, error) {
 	client := &MQTTClient{
-		uid:              mqttConfig.Msid,
-		subscribeTopic:   mqttConfig.SubscribeTopic,
-		publishTopicBase: mqttConfig.PublishTopic,
-		Connected:        utils.Waiter{},
+		uid:            mqttConfig.Msid,
+		subscribeTopic: fmt.Sprintf("/av/u/%s", mqttConfig.Msid),
+		Connected:      utils.Waiter{},
 	}
 
 	wssUrl := fmt.Sprintf("wss://%s/mqtt", mobileMqttsUrl)
