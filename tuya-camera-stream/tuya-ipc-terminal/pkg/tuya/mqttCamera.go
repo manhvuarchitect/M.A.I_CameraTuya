@@ -64,6 +64,10 @@ type DisconnectFrame struct {
 }
 
 func NewMqttCameraClient(mqttClient *MQTTClient, device *Device, webrtcConfig *WebRTCConfig) *MQTTCameraClient {
+	topic := mqttClient.publishTopicBase
+	topic = strings.Replace(topic, "moto_id", webrtcConfig.MotoId, 1)
+	topic = strings.Replace(topic, "{device_id}", device.DeviceId, 1)
+
 	return &MQTTCameraClient{
 		mqttClient:   mqttClient,
 		webrtcConfig: webrtcConfig,
@@ -71,7 +75,7 @@ func NewMqttCameraClient(mqttClient *MQTTClient, device *Device, webrtcConfig *W
 		motoId:       webrtcConfig.MotoId,
 		deviceId:     device.DeviceId,
 		SessionId:    utils.RandString(6, 62),
-		publishTopic: fmt.Sprintf("/av/moto/%s/u/%s", webrtcConfig.MotoId, device.DeviceId),
+		publishTopic: topic,
 	}
 }
 
@@ -209,6 +213,8 @@ func (c *MQTTCameraClient) sendMqttMessage(messageType string, protocol int, tra
 	if err != nil {
 		return err
 	}
+
+	core.Logger.Trace().Msgf("Sending MQTT payload to %s: %s", c.publishTopic, string(payload))
 
 	token := c.mqttClient.mqtt.Publish(c.publishTopic, 1, false, payload)
 	if token.Wait() && token.Error() != nil {

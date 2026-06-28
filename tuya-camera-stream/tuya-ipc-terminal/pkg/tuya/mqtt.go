@@ -13,9 +13,10 @@ import (
 
 type MQTTClient struct {
 	mqtt           mqtt.Client
-	uid            string
-	subscribeTopic string
-	cameras        map[string]*MQTTCameraClient // sessionId -> camera
+	uid              string
+	subscribeTopic   string
+	publishTopicBase string
+	cameras          map[string]*MQTTCameraClient // sessionId -> camera
 	closed         bool
 	Connected      utils.Waiter
 }
@@ -44,9 +45,10 @@ type MqttMessage struct {
 
 func NewMqttClient(clientId, mobileMqttsUrl string, mqttConfig *MQTConfig) (*MQTTClient, error) {
 	client := &MQTTClient{
-		uid:            mqttConfig.Msid,
-		subscribeTopic: fmt.Sprintf("/av/u/%s", mqttConfig.Msid),
-		Connected:      utils.Waiter{},
+		uid:              mqttConfig.Msid,
+		subscribeTopic:   mqttConfig.SubscribeTopic,
+		publishTopicBase: mqttConfig.PublishTopic,
+		Connected:        utils.Waiter{},
 	}
 
 	wssUrl := fmt.Sprintf("wss://%s/mqtt", mobileMqttsUrl)
@@ -119,16 +121,18 @@ func (c *MQTTClient) onDisconnect(client mqtt.Client, err error) {
 }
 
 func (c *MQTTClient) consume(client mqtt.Client, msg mqtt.Message) {
+	core.Logger.Trace().Msgf("Received MQTT payload: %s", string(msg.Payload()))
+
 	var rmqtt MqttMessage
 	if err := json.Unmarshal(msg.Payload(), &rmqtt); err != nil {
-		core.Logger.Error().Err(err).Msg("Failed to unmarshal mqtt message: %s")
+		core.Logger.Error().Err(err).Msgf("Failed to unmarshal mqtt message: %s", string(msg.Payload()))
 		return
 	}
 
 	sessionId := rmqtt.Data.Header.SessionID
 	cameraClient, ok := c.cameras[sessionId]
 	if !ok {
-		core.Logger.Warn().Msgf("No camera client found for sessionId: %s", sessionId)
+		core.Logger.Warn().Msgf("No camera client found for sessionId: %s. Message type: %s", sessionId, rmqtt.Data.Header.Type)
 		return
 	}
 
@@ -139,5 +143,7 @@ func (c *MQTTClient) consume(client mqtt.Client, msg mqtt.Message) {
 		cameraClient.onMqttCandidate(&rmqtt)
 	case "disconnect":
 		cameraClient.onMqttDisconnect()
+	default:
+		core.Logger.Warn().Msgf("Unknown message type: %s", rmqtt.Data.Header.Type)
 	}
 }
