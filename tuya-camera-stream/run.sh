@@ -27,7 +27,7 @@ if bashio::var.is_empty "${EMAIL}"; then
 fi
 
 # ─── Tên session file theo convention của tuya-ipc-terminal ───────────────────
-SESSION_KEY="${REGION}_$(echo ${EMAIL} | tr '@.' '_')"
+SESSION_KEY="${REGION}_$(echo ${EMAIL} | sed 's/@/_at_/' | tr '.' '_')"
 SESSION_FILE="${DATA_DIR}/.tuya-data/user_${SESSION_KEY}.json"
 
 # ─── Kiểm tra session hiện có ─────────────────────────────────────────────────
