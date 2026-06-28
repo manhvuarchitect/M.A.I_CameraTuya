@@ -631,6 +631,10 @@ func GetWebRTCConfig(client *http.Client, serverHost string, deviceId string) (*
 		return nil, errors.New(webRTCConfigResponse.Msg)
 	}
 
+	if webRTCConfigResponse.Result.P2PConfig.MotoId == "" {
+		return nil, errors.New("Camera does not support Tuya WebRTC streaming (missing motoId in config)")
+	}
+
 	return &webRTCConfigResponse, nil
 }
 

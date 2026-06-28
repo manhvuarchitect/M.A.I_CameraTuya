@@ -1,5 +1,5 @@
 name: "M.A.I TuyaCamera"
-version: "1.0.18"
+version: "1.0.19"
 slug: "mai_tuya_camera"
 description: "Stream Tuya Smart Cameras as local RTSP via tuya-ipc-terminal."
 url: "https://github.com/manhvuarchitect/M.A.I_CameraTuya"
