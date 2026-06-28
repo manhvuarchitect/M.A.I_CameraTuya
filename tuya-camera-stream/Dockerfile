@@ -4,8 +4,8 @@ FROM golang:1.23-alpine AS builder
 RUN apk add --no-cache git gcc musl-dev
 
 WORKDIR /build
-RUN git clone https://github.com/seydx/tuya-ipc-terminal.git . \
-    && go mod download \
+COPY tuya-ipc-terminal /build
+RUN go mod download \
     && CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o tuya-ipc-terminal .
 
 # ─── Runtime image ────────────────────────────────────────────────────────────
